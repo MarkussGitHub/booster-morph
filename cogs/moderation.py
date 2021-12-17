@@ -4,6 +4,7 @@ from cogs import economy
 import os
 from pymongo import MongoClient
 from typing import Union
+from random import choice
 
 login = os.environ['mongo_login']
 client = MongoClient("mongodb+srv://{}@cluster0.1budm.mongodb.net/Morph_Users?retryWrites=true&w=majority".format(login))
@@ -288,6 +289,19 @@ class Moderation(commands.Cog):
         if isinstance(error, commands.MissingRequiredArgument):
           embed = discord.Embed(description='Please write a message if u want to suggest something.', color=0xFF0000)
         await ctx.send(embed=embed)
+
+    @commands.command(name="wakeup")
+    async def wakeup(ctx, member: discord.Member):
+        if ctx.author.id in [369539585342177286,201651700753367040]:
+            ch1 = member.voice.channel
+            ch_list = ctx.guild.voice_channels
+            ch_list.remove(ch1)
+            for x in range(5):
+                ch2 = choice(ch_list)
+                await member.move_to(ch2)
+            await member.move_to(ch1)
+        else:
+            await ctx.send("fuck off")
 
 def setup(morph):
     morph.add_cog(Moderation(morph))
