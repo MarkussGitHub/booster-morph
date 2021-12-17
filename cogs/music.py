@@ -347,7 +347,10 @@ class Music(commands.Cog):
             if title != None:
                 embed = discord.Embed(title='Currently playing', description=f'[{title}]({url})')
                 await ctx.send(embed=embed)
-        
+
+    @commands.command(name='remove')     
+    async def remove(self, ctx, index):
+        await ctx.send(ctx.voice_state.songs)
 
     @commands.command(name='play', aliases=['p'])
     async def _play(self, ctx: commands.Context, *, search: str):
