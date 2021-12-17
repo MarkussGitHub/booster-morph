@@ -348,20 +348,28 @@ class Music(commands.Cog):
                 embed = discord.Embed(title='Currently playing', description=f'[{title}]({url})')
                 await ctx.send(embed=embed)
 
-    @commands.command(name='remove')     
-    async def remove(self, ctx, index):
-        await ctx.send(ctx.voice_state.songs)
+    @commands.command(name='shuffle')
+    async def _shuffle(self, ctx: commands.Context):
+        """Shuffles the queue."""
+
+        if len(ctx.voice_state.songs) == 0:
+            return await ctx.send('Empty queue.')
+
+        ctx.voice_state.songs.shuffle()
+        await ctx.message.add_reaction('✅')
+
+    @commands.command(name='remove')
+    async def _remove(self, ctx: commands.Context, index: int):
+        """Removes a song from the queue at a given index."""
+
+        if len(ctx.voice_state.songs) == 0:
+            return await ctx.send('Empty queue.')
+
+        ctx.voice_state.songs.remove(index - 1)
+        await ctx.message.add_reaction('✅')
 
     @commands.command(name='play', aliases=['p'])
     async def _play(self, ctx: commands.Context, *, search: str):
-        """Plays a song.
-
-        If there are songs in the queue, this will be queued until the
-        other songs finished playing.
-
-        This command automatically searches from various sites if no URL is provided.
-        A list of these sites can be found here: https://rg3.github.io/youtube-dl/supportedsites.html
-        """
         if not ctx.voice_state.voice:
             await ctx.invoke(self._join)
 
@@ -377,7 +385,20 @@ class Music(commands.Cog):
                 await ctx.message.delete()
                 await ctx.voice_state.songs.put(song)
                 queue_embed = discord.Embed(title='Queued', description='{}\n {}'.format(str(source), requested_by))
-                await ctx.send(embed = queue_embed)    
+                await ctx.send(embed = queue_embed)
+
+    @commands.command(name='loop')
+    async def _loop(self, ctx: commands.Context):
+        """Loops the currently playing song.
+        Invoke this command again to unloop the song.
+        """
+
+        if not ctx.voice_state.is_playing:
+            return await ctx.send('Nothing being played at the moment.')
+
+        # Inverse boolean value to loop and unloop.
+        ctx.voice_state.loop = not ctx.voice_state.loop
+        await ctx.message.add_reaction('✅')
 
     @_play.error
     async def play_error(self, ctx: commands.Context, error):
