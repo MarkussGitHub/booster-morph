@@ -3,9 +3,6 @@ from discord.ext import commands, tasks
 from datetime import datetime
 from apps import covidLATVIA, weatherAPI
 import os
-from dotenv import load_dotenv
-
-load_dotenv()
 morph = commands.Bot('.', description='MorphBOT COMMANDS', case_insensitive=True, intents=discord.Intents.all())
 morph.remove_command('help')
 message_channel = morph.get_channel(401071542110388257)
