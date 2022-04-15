@@ -1,66 +1,75 @@
-import discord
-from discord.ext import commands, tasks
+from discord.ext import commands
+from apps.embeds import Embed
+
+embed = Embed()
+
 
 class Help(commands.Cog):
     def __init__(self, morph):
         self.morph = morph
 
-    def cmd_list(self, cog):
+    def cmd_list(self, cog) -> str:
+        """Returns command list for given cog as string."""
         cmdlist = []
         for cmd in self.morph.commands:
-            if cmd.cog_name == cog:
-                if cmd.hidden == False:
-                    cmdlist.append(cmd.name)
+            if not cmd.hidden and cmd.cog_name == cog:
+                cmdlist.append(cmd.name)
 
-        cmdlist = ', '.join(cmdlist)
+        cmdlist = ", ".join(sorted(cmdlist))
         return cmdlist
 
-    def ctgry_list(self):
-        ctgrylist = []
-        forbidden = ['Owner', 'Help']
-        for ctgry in self.morph.cogs:
-            if ctgry not in forbidden:
-                ctgrylist.append(ctgry)
+    @commands.command(name="help", help="Everyone needs a bit of help", hidden=True)
+    async def help(self, ctx, command=None):
+        if command:
+            try:
+                cmd = [cmd for cmd in self.morph.commands if cmd.name == command][0]
 
-        ctgrylist = ', '.join(ctgrylist)
-        return ctgrylist
+            except IndexError:
+                embed.error(description="There is no such command")
 
-    @commands.command(name='help', help='Everyone needs a bit of help', hidden=True)
-    async def help(self, ctx, cmd = None):
-        if cmd == None:
-            page1 = discord.Embed(title='Morph Help', color=0xF2F2F2)
-            page1.add_field(name='Fun', value=f'```{self.cmd_list("Fun")}```', inline=False)
-            page1.add_field(name='Music', value=f'```{self.cmd_list("Music")}```', inline=False)
-            page1.add_field(name='Dota', value=f'```{self.cmd_list("Dota")}```', inline=False)
-            page1.add_field(name='Moderation', value=f'```{self.cmd_list("Moderation")}```', inline=False)
-            page1.add_field(name='Economy', value=f'```{self.cmd_list("Economy")}```', inline=False)
-            page1.set_footer(text='.help <command name> to see info on specific command')
-            await ctx.send(embed=page1)
-        else:
-            for command in self.morph.commands:
-                if command.name == cmd:
-                    for key, value in command.clean_params.items():
-                        arg = key
-                        break
-                    else:
-                        arg = None
-                    embed = discord.Embed(title=f'{cmd.capitalize()} Help', description=command.help if command.help != None else "No usage description")
-                    if arg != None:
-                        embed.add_field(name='Usage', value=f'```.{cmd} <{arg}>```')
-                    else:
-                        embed.add_field(name='Usage', value=f'```.{cmd}```')
-
-                    if len(command.aliases) > 0:
-                        aliaslist = ', '.join(command.aliases)
-                    else:
-                        aliaslist = None
-
-                    embed.add_field(name='Aliases', value=f'```{aliaslist}```', inline=False)
-                    await ctx.send(embed=embed)
-                    break
             else:
-                embed = discord.Embed(description='There is no such command', color=0xFF0000)
-                await ctx.send(embed=embed)
+                embed.info(
+                    title=f"{command.capitalize()} Help",
+                    description=cmd.help if cmd.help else None
+                )
+
+                params = cmd.clean_params.keys()
+                params_string = ""
+
+                if params:
+                    for p in params:
+                        params_string += f"<{p}> "
+
+                field_value = f".{command} {params_string}".strip()
+
+                embed.add_field(
+                    name="Usage",
+                    value=f"```{field_value}```"
+                )
+
+                if cmd.aliases:
+                    aliaslist = ", ".join(cmd.aliases)
+
+                    embed.add_field(
+                        name="Aliases",
+                        value=f"```{aliaslist}```",
+                        inline=False
+                    )
+
+        else:
+            embed.info(title="Morph Help")
+            for ctgry in sorted(self.morph.cogs):
+                if ctgry not in ["Owner", "Help"]:
+                    embed.add_field(
+                        name=ctgry,
+                        value=f"```{self.cmd_list(ctgry)}```",
+                        inline=False
+                    )
+            embed.set_footer(
+                text=".help <command name> to see info on specific command")
+
+        await ctx.send(embed=embed)
+
 
 def setup(morph):
     morph.add_cog(Help(morph))

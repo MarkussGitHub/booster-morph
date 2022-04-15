@@ -1,6 +1,5 @@
 import discord
 from discord.ext import commands
-from cogs import economy
 import os
 from pymongo import MongoClient
 from typing import Union
@@ -75,6 +74,7 @@ class Moderation(commands.Cog):
                 return None
             else:
                 return user
+
     @commands.command(name='checkperms')
     async def checkperms(self, ctx, member: Union[discord.Member, discord.Role] = None):
         if member == None:
@@ -236,7 +236,6 @@ class Moderation(commands.Cog):
             await member.add_roles(role)
         if role == None:
             pass
-        economy.data_add(member.id, member.guild.id)
         
     @commands.Cog.listener()
     async def on_member_remove(self, member):
@@ -296,7 +295,7 @@ class Moderation(commands.Cog):
             ch1 = member.voice.channel
             ch_list = ctx.guild.voice_channels
             ch_list.remove(ch1)
-            for x in range(5):
+            for _ in range(5):
                 ch2 = choice(ch_list)
                 await member.move_to(ch2)
             await member.move_to(ch1)
